@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบร้านค้าสหกรณ์โรงเรียนสันป่าตองวิทยาคม 2569</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- ใช้ฟอนต์ Itim และ Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* ตั้งค่าฟอนต์ไอติมทั้งระบบ */
+        body { font-family: 'Itim', cursive; background-color: #fff7ed; }
+        h1, h2, h3, h4, button { font-family: 'Itim', cursive; }
+        
+        .gradient-orange { background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%); }
+        .sidebar-item:hover { background-color: rgba(234, 88, 12, 0.1); }
+        .active-menu { background-color: #ea580c; color: white !important; }
+        .splash-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #fff7ed; }
+        ::-webkit-scrollbar-thumb { background: #fb923c; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-overlay">
+        <div class="relative max-w-4xl w-full p-4 text-center">
+            <button onclick="closeSplash()" class="absolute -top-4 -right-4 bg-red-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-3xl font-bold shadow-2xl hover:bg-red-700 transition-transform hover:scale-110 z-10">×</button>
+            <div class="bg-white p-2 rounded-2xl shadow-2xl">
+                <img src="https://autosdv.unaux.com/wp-content/uploads/2026/01/1-1536x576.png" alt="Welcome" class="rounded-xl w-full border-4 border-orange-500">
+                <p class="mt-4 text-orange-600 font-bold text-xl">ยินดีต้อนรับสู่ระบบสหกรณ์โรงเรียน</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="gradient-orange text-white p-4 shadow-lg flex justify-between items-center z-20">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl">🏢</span>
+            <div>
+                <h1 class="text-2xl font-bold leading-tight">ระบบร้านค้าสหกรณ์โรงเรียนสันป่าตองวิทยาคม</h1>
+                <p class="text-sm opacity-90 font-light text-orange-100">ปีการศึกษา 2569 | โดย ดร.ฉันทพัฒน์ วงศ์แพทย์</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <div class="text-md font-semibold bg-black/20 px-4 py-1 rounded-full inline-block" id="currentTime">กำลังโหลดเวลา...</div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-white shadow-xl flex flex-col border-r border-orange-100">
+            <div class="p-6 space-y-3 flex-1 overflow-y-auto">
+                <button onclick="showPage('home')" id="btn-home" class="sidebar-item w-full flex items-center p-3 rounded-xl text-orange-900 transition active-menu text-lg">
+                    <span class="mr-3 text-2xl">🏠</span> หน้าแรก
+                </button>
+                <button onclick="showPage('add-product')" id="btn-add-product" class="sidebar-item w-full flex items-center p-3 rounded-xl text-orange-900 transition text-lg">
+                    <span class="mr-3 text-2xl">🔼</span> เพิ่มสินค้า
+                </button>
+                <button onclick="showPage('payment')" id="btn-payment" class="sidebar-item w-full flex items-center p-3 rounded-xl text-orange-900 transition text-lg">
+                    <span class="mr-3 text-2xl">💸</span> ชำระเงิน
+                </button>
+                <button onclick="showPage('add-member')" id="btn-add-member" class="sidebar-item w-full flex items-center p-3 rounded-xl text-orange-900 transition text-lg">
+                    <span class="mr-3 text-2xl">➕</span> เพิ่มสมาชิก
+                </button>
+                <button onclick="showPage('report')" id="btn-report" class="sidebar-item w-full flex items-center p-3 rounded-xl text-orange-900 transition text-lg">
+                    <span class="mr-3 text-2xl">📊</span> รายงานยอดขาย
+                </button>
+            </div>
+            <div class="p-4 border-t border-orange-50 text-[12px] text-gray-400 text-center leading-relaxed font-light">
+                2026 SANPATONG WITTAYAKOM SCHOOL<br>By Dr.Chanthaphat Wongpat
+            </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto p-8 bg-orange-50/30" id="content">
+            <!-- Home Page -->
+            <section id="page-home" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-orange-500">
+                        <p class="text-gray-400 text-sm font-bold uppercase">ยอดขายวันนี้</p>
+                        <h3 class="text-4xl font-black text-orange-600 mt-1" id="stat-sales">฿0.00</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500">
+                        <p class="text-gray-400 text-sm font-bold uppercase">ยอดหุ้นรวม</p>
+                        <h3 class="text-4xl font-black text-blue-600 mt-1" id="stat-shares">฿0.00</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500">
+                        <p class="text-gray-400 text-sm font-bold uppercase">สมาชิกทั้งหมด</p>
+                        <h3 class="text-4xl font-black text-green-600 mt-1" id="stat-members">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-yellow-500">
+                        <p class="text-gray-400 text-sm font-bold uppercase">สินค้าในระบบ</p>
+                        <h3 class="text-4xl font-black text-yellow-600 mt-1" id="stat-products">0</h3>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Product -->
+            <section id="page-add-product" class="hidden max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-lg border-2 border-orange-100">
+                <h2 class="text-3xl font-black text-orange-600 mb-6">🔼 เพิ่มข้อมูลสินค้า</h2>
+                <form id="productForm" class="space-y-4">
+                    <input type="text" id="p_name" placeholder="ชื่อสินค้า" class="w-full p-4 bg-orange-50 rounded-xl border-none text-lg outline-orange-300" required>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="number" id="p_price" step="0.5" placeholder="ราคา (บาท)" class="w-full p-4 bg-orange-50 rounded-xl border-none text-lg outline-orange-300" required>
+                        <input type="number" id="p_stock" placeholder="จำนวน" class="w-full p-4 bg-orange-50 rounded-xl border-none text-lg outline-orange-300" required>
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-orange-600 transition text-xl">บันทึกสินค้าลงระบบ</button>
+                </form>
+            </section>
+
+            <!-- Payment -->
+            <section id="page-payment" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm h-fit">
+                        <input type="text" id="search_prod" oninput="renderPOS()" placeholder="🔍 ค้นหาสินค้าที่นี่..." class="w-full p-4 mb-4 bg-gray-50 border-2 border-orange-50 rounded-2xl outline-orange-300 text-lg">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="pos_products"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col h-fit sticky top-0 border-2 border-orange-200">
+                        <h2 class="text-2xl font-bold mb-4 text-orange-600">🛒 ตะกร้าสินค้า</h2>
+                        <select id="pay_member" class="w-full p-3 bg-orange-50 border-none rounded-xl mb-4 text-lg">
+                            <option value="">-- ลูกค้าทั่วไป --</option>
+                        </select>
+                        <div id="cart_items" class="space-y-2 mb-4 max-h-60 overflow-y-auto"></div>
+                        <div class="border-t-2 border-dashed pt-4">
+                            <div class="flex justify-between text-2xl font-black mb-4 text-orange-700">
+                                <span>รวมเงิน:</span>
+                                <span>฿<span id="cart_total">0.00</span></span>
+                            </div>
+                            <input type="number" id="pay_received" oninput="calcChange()" class="w-full p-4 text-3xl font-bold bg-orange-50 rounded-xl text-right mb-2 outline-green-400" placeholder="รับเงินมา">
+                            <div class="flex justify-between font-bold text-xl text-green-600 mb-4 px-2">
+                                <span>เงินทอน:</span>
+                                <span>฿<span id="pay_change">0.00</span></span>
+                            </div>
+                            <button onclick="confirmPayment()" class="w-full bg-green-500 text-white py-5 rounded-2xl font-bold text-2xl shadow-xl hover:bg-green-600 transition-all active:scale-95">✅ ยืนยันการขาย</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Member -->
+            <section id="page-add-member" class="hidden max-w-2xl mx-auto bg-white p-8 rounded-3xl shadow-lg border-t-8 border-blue-500">
+                <h2 class="text-3xl font-black text-blue-600 mb-6">➕ เพิ่มสมาชิกใหม่</h2>
+                <form id="memberForm" class="space-y-4">
+                    <input type="text" id="m_id" placeholder="รหัสนักเรียน / รหัสครู" class="w-full p-4 bg-blue-50 rounded-xl border-none text-lg outline-blue-300" required>
+                    <input type="text" id="m_name" placeholder="ชื่อ-นามสกุล" class="w-full p-4 bg-blue-50 rounded-xl border-none text-lg outline-blue-300" required>
+                    <input type="number" id="m_shares" placeholder="จำนวนหุ้น (10 บ./หุ้น)" class="w-full p-4 bg-blue-50 rounded-xl border-none text-lg outline-blue-300" required>
+                    <button type="submit" class="w-full bg-blue-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-600 transition text-xl">บันทึกข้อมูลสมาชิก</button>
+                </form>
+            </section>
+
+            <!-- Report -->
+            <section id="page-report" class="hidden">
+                <div class="bg-white p-6 rounded-2xl shadow-sm overflow-hidden border-2 border-orange-50">
+                    <h2 class="text-2xl font-bold mb-6 text-orange-600 underline">📊 ประวัติการขายสินค้า</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-orange-50">
+                                <tr>
+                                    <th class="p-4 text-lg">วันเวลา</th>
+                                    <th class="p-4 text-lg">ชื่อลูกค้า</th>
+                                    <th class="p-4 text-right text-lg">ยอดรวม</th>
+                                    <th class="p-4 text-center text-lg">พิมพ์สลิป</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales_table_body" class="text-lg"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let db = {
+            products: JSON.parse(localStorage.getItem('sdv_db_products')) || [],
+            members: JSON.parse(localStorage.getItem('sdv_db_members')) || [],
+            sales: JSON.parse(localStorage.getItem('sdv_db_sales')) || []
+        };
+        let cart = [];
+
+        window.onload = () => {
+            updateDashboard();
+            updateClock();
+            setInterval(updateClock, 1000);
+            renderPOS();
+            updateMemberOptions();
+        };
+
+        function updateClock() { document.getElementById('currentTime').innerText = '🕒 ' + new Date().toLocaleString('th-TH'); }
+        function closeSplash() { document.getElementById('splashScreen').style.display = 'none'; }
+        
+        function showPage(pageId) {
+            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-menu'));
+            document.getElementById(`btn-${pageId}`).classList.add('active-menu');
+            if(pageId === 'report') renderReportTable();
+        }
+
+        function syncDB() {
+            localStorage.setItem('sdv_db_products', JSON.stringify(db.products));
+            localStorage.setItem('sdv_db_members', JSON.stringify(db.members));
+            localStorage.setItem('sdv_db_sales', JSON.stringify(db.sales));
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const todayTotal = db.sales.filter(s => new Date(s.timestamp).toLocaleDateString() === new Date().toLocaleDateString())
+                                      .reduce((sum, s) => sum + s.total, 0);
+            const totalShares = db.members.reduce((sum, m) => sum + (m.shares * 10), 0);
+            document.getElementById('stat-sales').innerText = `฿${todayTotal.toLocaleString()}`;
+            document.getElementById('stat-shares').innerText = `฿${totalShares.toLocaleString()}`;
+            document.getElementById('stat-members').innerText = db.members.length;
+            document.getElementById('stat-products').innerText = db.products.length;
+        }
+
+        document.getElementById('productForm').onsubmit = (e) => {
+            e.preventDefault();
+            db.products.push({ id: Date.now(), name: document.getElementById('p_name').value, price: parseFloat(document.getElementById('p_price').value), stock: parseInt(document.getElementById('p_stock').value) });
+            syncDB(); renderPOS(); e.target.reset();
+            Swal.fire({ title: 'สำเร็จ', text: 'บันทึกสินค้าเรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#ea580c' });
+        };
+
+        document.getElementById('memberForm').onsubmit = (e) => {
+            e.preventDefault();
+            db.members.push({ studentId: document.getElementById('m_id').value, name: document.getElementById('m_name').value, shares: parseInt(document.getElementById('m_shares').value), timestamp: new Date().toISOString() });
+            syncDB(); updateMemberOptions(); e.target.reset();
+            Swal.fire({ title: 'สำเร็จ', text: 'เพิ่มสมาชิกใหม่เรียบร้อยแล้ว', icon: 'success', confirmButtonColor: '#3b82f6' });
+        };
+
+        function updateMemberOptions() {
+            const select = document.getElementById('pay_member');
+            select.innerHTML = '<option value="">-- ลูกค้าทั่วไป --</option>';
+            db.members.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.name; opt.innerText = `${m.studentId} | ${m.name}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function renderPOS() {
+            const term = document.getElementById('search_prod').value.toLowerCase();
+            const container = document.getElementById('pos_products');
+            container.innerHTML = db.products.filter(p => p.name.toLowerCase().includes(term)).map(p => `
+                <div onclick="addToCart(${p.id})" class="bg-white p-4 rounded-2xl border-2 border-orange-50 hover:border-orange-500 cursor-pointer shadow-sm transition-all hover:-translate-y-1">
+                    <p class="font-bold text-gray-800 text-lg">${p.name}</p>
+                    <p class="text-orange-600 font-black text-xl">฿${p.price}</p>
+                    <p class="text-xs text-gray-400 mt-1">คงเหลือ: ${p.stock}</p>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(pid) {
+            const p = db.products.find(x => x.id === pid);
+            if(p.stock <= 0) return Swal.fire('ขออภัย', 'สินค้าชิ้นนี้หมดสต็อก', 'warning');
+            const inCart = cart.find(c => c.id === pid);
+            if(inCart) inCart.qty++; else cart.push({...p, qty: 1});
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart_items');
+            container.innerHTML = cart.map((item, idx) => `
+                <div class="flex justify-between items-center bg-orange-50 p-3 rounded-2xl text-md border border-orange-100">
+                    <div class="flex-1">
+                        <p class="font-bold text-gray-700">${item.name}</p>
+                        <p class="text-xs text-gray-500">${item.price.toFixed(2)} x ${item.qty}</p>
+                    </div>
+                    <div class="font-bold text-orange-600">฿${(item.price * item.qty).toLocaleString()}</div>
+                    <button onclick="cart.splice(${idx},1);updateCartUI();" class="ml-3 bg-red-100 text-red-500 w-8 h-8 rounded-full hover:bg-red-500 hover:text-white transition-colors">✕</button>
+                </div>
+            `).join('');
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            document.getElementById('cart_total').innerText = total.toLocaleString(undefined, {minimumFractionDigits: 2});
+            calcChange();
+        }
+
+        function calcChange() {
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const received = parseFloat(document.getElementById('pay_received').value) || 0;
+            document.getElementById('pay_change').innerText = Math.max(0, received - total).toLocaleString(undefined, {minimumFractionDigits: 2});
+        }
+
+        function confirmPayment() {
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const received = parseFloat(document.getElementById('pay_received').value) || 0;
+            if(cart.length === 0) return Swal.fire('เตือน', 'กรุณาเลือกสินค้าก่อน', 'warning');
+            if(received < total) return Swal.fire('ผิดพลาด', 'ยอดรับเงินน้อยกว่ายอดซื้อ', 'error');
+
+            const sale = {
+                id: 'INV' + Date.now().toString().slice(-8),
+                timestamp: new Date().toISOString(),
+                customer: document.getElementById('pay_member').value || 'ลูกค้าทั่วไป',
+                items: JSON.parse(JSON.stringify(cart)),
+                total: total,
+                received: received,
+                change: received - total
+            };
+
+            cart.forEach(item => { const p = db.products.find(x => x.id === item.id); if(p) p.stock -= item.qty; });
+            db.sales.push(sale);
+            syncDB();
+
+            Swal.fire({ 
+                title: 'ขายสำเร็จ!', 
+                text: `เงินทอน ${sale.change.toFixed(2)} บาท`, 
+                icon: 'success', 
+                showCancelButton: true, 
+                confirmButtonText: '🖨 พิมพ์สลิปไทย',
+                confirmButtonColor: '#22c55e'
+            }).then(res => { if(res.isConfirmed) generatePDF(sale.id); });
+
+            cart = []; document.getElementById('pay_received').value = ''; updateCartUI(); renderPOS();
+        }
+
+        function renderReportTable() {
+            const tbody = document.getElementById('sales_table_body');
+            tbody.innerHTML = db.sales.slice().reverse().map(s => `
+                <tr class="border-b hover:bg-orange-50/50 transition-colors">
+                    <td class="p-4">${new Date(s.timestamp).toLocaleString('th-TH')}</td>
+                    <td class="p-4 font-bold text-gray-700">${s.customer}</td>
+                    <td class="p-4 text-right font-black text-orange-600">฿${s.total.toLocaleString()}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="generatePDF('${s.id}')" class="bg-orange-500 text-white px-3 py-1 rounded-lg hover:bg-orange-600 shadow-md">🖨 สลิป</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- ระบบสลิปภาษาไทย (Thai PDF Solution) ---
+        async function generatePDF(saleId) {
+            const sale = db.sales.find(s => s.id === saleId);
+            if(!sale) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: [80, 250] }); 
+
+            Swal.fire({ title: 'กำลังออกสลิป...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // ตั้งค่ากรอบและพื้นที่
+            const canvasWidth = 450;
+            const padding = 30;
+            const contentWidth = canvasWidth - (padding * 2);
+            
+            // คำนวณความสูงตามจำนวนรายการสินค้าและชื่อที่อาจจะยาวล้นบรรทัด
+            let estimatedHeight = 500;
+            ctx.font = "18px 'Sarabun', sans-serif";
+            sale.items.forEach(item => {
+                const lines = wrapText(ctx, item.name, contentWidth - 50);
+                estimatedHeight += lines.length * 30 + 35;
+            });
+            
+            canvas.width = canvasWidth;
+            canvas.height = estimatedHeight;
+            
+            // พื้นหลังขาว
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // วาดกรอบสลิป (เส้นประขอบ)
+            ctx.strokeStyle = "#cccccc";
+            ctx.setLineDash([5, 5]);
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#000000";
+            ctx.textAlign = "center";
+            
+            // ส่วนหัว
+            ctx.font = "bold 28px 'Sarabun', sans-serif";
+            ctx.fillText("สหกรณ์โรงเรียนสันป่าตองวิทยาคม", canvasWidth/2, 60);
+            
+            ctx.font = "20px 'Sarabun', sans-serif";
+            ctx.fillText("ใบเสร็จรับเงิน / Receipt", canvasWidth/2, 95);
+            ctx.fillText("-----------------------------------------------------", canvasWidth/2, 120);
+            
+            ctx.textAlign = "left";
+            ctx.font = "18px 'Sarabun', sans-serif";
+            ctx.fillText(`เลขที่: ${sale.id}`, padding, 150);
+            ctx.fillText(`วันที่: ${new Date(sale.timestamp).toLocaleString('th-TH')}`, padding, 180);
+            ctx.fillText(`ลูกค้า: ${sale.customer}`, padding, 210);
+            ctx.fillText("-----------------------------------------------------", padding, 240);
+            
+            // รายการสินค้าพร้อมระบบตัดคำ (Word Wrap)
+            let currY = 270;
+            sale.items.forEach((item, i) => {
+                ctx.font = "bold 20px 'Sarabun', sans-serif";
+                const prefix = `${i+1}. `;
+                const textToWrap = item.name;
+                
+                // ตัดคำชื่อสินค้า
+                const nameLines = wrapText(ctx, textToWrap, contentWidth - 40);
+                nameLines.forEach((line, index) => {
+                    ctx.fillText(index === 0 ? prefix + line : "    " + line, padding, currY);
+                    currY += 30;
+                });
+
+                // ราคาและจำนวน (ชิดขวา)
+                ctx.textAlign = "right";
+                ctx.font = "18px 'Sarabun', sans-serif";
+                const details = `${item.qty} x ${item.price.toFixed(2)} = ${ (item.qty*item.price).toLocaleString() }`;
+                ctx.fillText(details, canvasWidth - padding, currY);
+                ctx.textAlign = "left";
+                currY += 40;
+            });
+            
+            ctx.textAlign = "center";
+            ctx.fillText("-----------------------------------------------------", canvasWidth/2, currY);
+            currY += 40;
+            
+            // สรุปยอด
+            ctx.font = "bold 26px 'Sarabun', sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("ยอดรวมสุทธิ:", padding, currY);
+            ctx.textAlign = "right";
+            ctx.fillText(`${sale.total.toLocaleString()} บาท`, canvasWidth - padding, currY);
+            
+            ctx.textAlign = "left";
+            ctx.font = "20px 'Sarabun', sans-serif";
+            currY += 45;
+            ctx.fillText(`รับเงิน: ${sale.received.toLocaleString()} บ.`, padding, currY);
+            ctx.textAlign = "right";
+            ctx.fillText(`เงินทอน: ${sale.change.toLocaleString()} บ.`, canvasWidth - padding, currY);
+            
+            ctx.textAlign = "center";
+            currY += 70;
+            ctx.font = "italic 20px 'Sarabun', sans-serif";
+            ctx.fillText("ขอบคุณที่ใช้บริการ / Thank you", canvasWidth/2, currY);
+
+            // แปลง Canvas เป็น Image
+            const imgData = canvas.toDataURL('image/png');
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            doc.save(`Slip-${sale.id}.pdf`);
+            
+            Swal.close();
+        }
+
+        // ฟังก์ชันช่วยตัดข้อความภาษาไทย
+        function wrapText(context, text, maxWidth) {
+            const words = text.split(''); // ตัดทีละตัวอักษรสำหรับภาษาไทย
+            let lines = [];
+            let currentLine = '';
+
+            for (let n = 0; n < words.length; n++) {
+                let testLine = currentLine + words[n];
+                let metrics = context.measureText(testLine);
+                let testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    lines.push(currentLine);
+                    currentLine = words[n];
+                } else {
+                    currentLine = testLine;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+    </script>
+</body>
+</html>
